@@ -33,3 +33,4 @@ logs/alerts.json
 
 # Data artifacts
 data/ip_blacklist.json
+data/friday_raw.csv

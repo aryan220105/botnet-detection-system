@@ -32,13 +32,24 @@ def check_models_exist() -> bool:
     return rf and iso
 
 
+def get_best_dataset() -> str:
+    """Return the path to the best available dataset."""
+    real_dataset = os.path.join(PROJECT_ROOT, "data", "cicids2017_processed.csv")
+    sample_dataset = os.path.join(PROJECT_ROOT, "data", "dataset_sample.csv")
+    if os.path.exists(real_dataset):
+        return real_dataset
+    return sample_dataset
+
+
 def train_models():
-    """Run the model-training pipeline."""
+    """Run the model-training pipeline on the best available dataset."""
     print("\n" + "=" * 60)
     print("  STEP 1 - Training ML models")
     print("=" * 60)
+    dataset = get_best_dataset()
+    print(f"  Using dataset: {os.path.basename(dataset)}")
     from models.train_model import main as train_main
-    train_main()
+    train_main(dataset)
 
 
 def launch_dashboard(host: str, port: int):

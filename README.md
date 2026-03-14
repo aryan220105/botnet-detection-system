@@ -34,6 +34,20 @@ This system simulates a **Security Operations Center (SOC) monitoring tool** tha
 - **Alerts** security analysts via a real-time web dashboard with interactive charts
 - **Logs** all threats to persistent log files for forensic analysis
 
+### Dataset
+
+The models are trained on the **real-world CICIDS-2017 dataset** from the Canadian Institute for Cybersecurity (University of New Brunswick). The Friday capture file is used, which contains:
+
+| Traffic Type | Samples |
+|---|---|
+| BENIGN | 288,544 |
+| Portscan | 159,066 |
+| DDoS | 95,144 |
+| Botnet - Attempted | 4,067 |
+| Botnet | 736 |
+
+A balanced subset of 15,000 flows (7,500 normal + 7,500 attack) is extracted and used for training, achieving **99.89% accuracy** with Random Forest.
+
 ---
 
 ## Architecture
@@ -124,7 +138,9 @@ botnet-detection-system/
 ├── requirements.txt                   # Python dependencies
 │
 ├── data/
-│   ├── dataset_sample.csv             # Sample labelled dataset (100 rows)
+│   ├── dataset_sample.csv             # Small sample dataset for quick testing
+│   ├── cicids2017_processed.csv       # Real CICIDS-2017 dataset (15,000 flows)
+│   ├── download_dataset.py            # Script to download & preprocess CICIDS-2017
 │   └── ip_blacklist.json              # Auto-generated blacklist
 │
 ├── models/
@@ -210,13 +226,16 @@ Open your browser and navigate to `http://127.0.0.1:5000`.
 ### Option B — Step-by-Step
 
 ```bash
-# Step 1: Train the models
-python models/train_model.py
+# Step 1: Download & preprocess the real CICIDS-2017 dataset (~200 MB download)
+python data/download_dataset.py
 
-# Step 2: (Optional) Test the detection engine standalone
+# Step 2: Train the models on real data
+python models/train_model.py --dataset data/cicids2017_processed.csv
+
+# Step 3: (Optional) Test the detection engine standalone
 python detection_engine/detector.py
 
-# Step 3: Launch the dashboard
+# Step 4: Launch the dashboard
 python dashboard/app.py
 ```
 
@@ -269,16 +288,23 @@ Converts raw packets into 9 ML features:
 | 8 | `src_port` | Source port number |
 | 9 | `dst_port` | Destination port number |
 
-### 3. Model Training (`models/train_model.py`)
+### 3. Dataset Download (`data/download_dataset.py`)
 
-- Loads the labelled CSV dataset
+- Downloads the **CICIDS-2017 Friday** capture (~200 MB) from HuggingFace
+- Maps 80+ raw CICFlowMeter columns to our 9-feature schema
+- Creates a balanced 15,000-row training dataset (7,500 normal + 7,500 attack)
+- Supports custom sample sizes via `--samples` flag
+
+### 4. Model Training (`models/train_model.py`)
+
+- Loads the labelled CSV dataset (real CICIDS-2017 or sample)
 - Normalizes features with `StandardScaler`
-- Trains a **Random Forest** (100 estimators, max depth 20)
+- Trains a **Random Forest** (100 estimators, max depth 20) — **99.89% accuracy**
 - Trains an **Isolation Forest** (150 estimators, 15% contamination)
 - Saves confusion matrix and feature importance plots
 - Persists models to `.pkl` files via joblib
 
-### 4. Detection Engine (`detection_engine/detector.py`)
+### 5. Detection Engine (`detection_engine/detector.py`)
 
 Multi-layered classification:
 
@@ -287,7 +313,7 @@ Multi-layered classification:
 3. **Isolation Forest** — anomaly detection for zero-day patterns
 4. **Heuristic rules** — DGA entropy checks, suspicious port detection
 
-### 5. Dashboard (`dashboard/app.py`)
+### 6. Dashboard (`dashboard/app.py`)
 
 Flask web application with:
 - **Stats cards**: total packets, normal, suspicious, botnet counts
@@ -297,7 +323,7 @@ Flask web application with:
 - **IP Blacklist**: visual display of banned IPs
 - **Auto-refresh**: polls the API every 2 seconds
 
-### 6. Alert & Logging (`utils/logger.py`)
+### 7. Alert & Logging (`utils/logger.py`)
 
 - Rotating file handlers (5 MB per file, 5 backups)
 - Separate log streams: `system.log`, `traffic.log`, `alerts.log`

@@ -1,8 +1,8 @@
 {
-  "random_forest_accuracy": 1.0,
-  "isolation_forest_accuracy": 0.4615,
-  "training_samples": 75,
-  "test_samples": 26,
+  "random_forest_accuracy": 0.9989,
+  "isolation_forest_accuracy": 0.3949,
+  "training_samples": 11250,
+  "test_samples": 3750,
   "features_used": [
     "packet_size",
     "flow_duration",
