@@ -1,0 +1,17 @@
+{
+  "random_forest_accuracy": 1.0,
+  "isolation_forest_accuracy": 0.4615,
+  "training_samples": 75,
+  "test_samples": 26,
+  "features_used": [
+    "packet_size",
+    "flow_duration",
+    "protocol_type",
+    "packets_per_flow",
+    "bytes_per_flow",
+    "connection_frequency",
+    "dns_entropy",
+    "src_port",
+    "dst_port"
+  ]
+}

@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs (regenerated at runtime)
+logs/*.log
+logs/alerts.json
+
+# Model files are large but we include them for the demo
+# Uncomment below to exclude:
+# models/*.pkl
+
+# Data artifacts
+data/ip_blacklist.json
